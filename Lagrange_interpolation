@@ -1,0 +1,83 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul  2 17:13:10 2020
+
+@author: David
+"""
+#Lagrange interpolation
+import numpy as np
+import matplotlib.pyplot as plt
+import GLL_fun as g
+
+N=4 #Number of ponits
+
+x=np.linspace(-1,1,1000) #Domain in x
+###########################################################
+#Define function to interpolate
+f=np.sin(np.pi * x)/x
+###########################################################
+
+xi,wi=g.gll(N) #Weight terms and GLL collocation points
+class Lg_Int:
+    
+    def __init__(self, f, N, x, xi):
+        self.f=f
+        self.N=N
+        self.x=x
+        self.xi=xi
+        
+    def lagrangeplt(self,i): #Obtain Lagrange polynomials
+        P=1;                 #and plot each
+        for j in range(-1,N):
+            if i!=j:
+                P=P*(x-xi[j+1])/(xi[i+1]-xi[j+1])
+        Name="N="+str(i+1)
+        plt.plot(x,P,label=Name)
+        leng="Lagrange polynomials"
+        plt.title(leng)
+        plt.legend(loc='lower right')
+        plt.xlim(-1,1)
+        #plt.ylim(-1,1)
+        return P
+    
+    def lagrange(self,i): #Only obtain Lagrange polynomials
+        P=1;
+        for j in range(-1,N):
+            if i!=j:
+                P=P*(x-xi[j+1])/(xi[i+1]-xi[j+1])
+        return P
+        
+    def interpolate(self):
+        fi = np.interp(xi, x, f) 
+        lp = np.zeros((N + 1, len(x)))
+        for i in range(-1,N):
+            lp[i+1,:]=Lg_Int.lagrange(self,i)
+        
+        #Interpolation Sum[f(s)*Lp(s)]
+        Fint=x*0
+        for i in range(-1,N+1):
+            Fint=Fint+fi[i]*lp[i]
+        #Plot interpolated polynomial
+        plt.figure()
+        leng="Lagrange interpolation w/ N="+str(N) #Title
+        plt.title(leng)
+        plt.plot(x,f,label="Function")
+        plt.plot(x,Fint,label='Interpolated')
+        plt.legend(loc='lower right')
+        
+        #Plot collocation points
+        plt.plot(xi,fi,marker="o",linestyle='None',
+                 markerfacecolor='None',markeredgecolor='blue')
+        return Fint
+    
+    
+A1=Lg_Int(f,N,x,xi)   #Assign function, order, domain 
+                      #and collocation points to the class
+                      
+#for i in range(N):   #Obtain each polynomial
+#    A1.lagrangeplt(i)
+
+A1.interpolate()      #Obtain the interpolation plot
+
+
+
